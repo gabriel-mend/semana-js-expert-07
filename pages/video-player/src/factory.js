@@ -1,7 +1,27 @@
 import Camera from "../../../lib/shared/camera.js"
+import { supportsWorkerType } from "../../../lib/shared/util.js"
 import Controller from "./controller.js"
 import Service from "./service.js"
 import View from "./view.js"
+
+async function getWorker() {
+  if(supportsWorkerType()) {
+    console.log('suporta!')
+    const worker = new Worker('./src/worker.js', { type: 'module' })
+    return worker
+  }
+  console.log('não suporta!')
+
+  const workerMock = {
+    async postMessage() {},
+    onmessage(msg) {}
+  }
+
+  return workerMock
+}
+
+const worker = await getWorker()
+worker.postMessage('hey from factory')
 
 const camera = await Camera.init()
 const [rootPath] = window.location.href.split('/pages/')
